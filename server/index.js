@@ -17,11 +17,25 @@ const io = new Server(expressServer,{
 })
 io.on('connection', socket =>{
     console.log(`user ${socket.id} connected.`)
-        socket.on('message', message =>{
-                // const b = Buffer.from(message)
-                // console.log(b.toString())
-                io.emit('message', `${socket.id.substring(0,5)} :${message}`)
-            }
-        )
+    //Upon connection - only to user
+    socket.emit('message', "welcome to Chat App!")
+    //Upon connection - to all others
+    socket.broadcast.emit('message', `User ${socket.id.substring(0,5)} connected`)
+
+    //Listening for a message event.
+    socket.on('message', message =>{
+            // const b = Buffer.from(message)
+            // console.log(b.toString())
+            io.emit('message', `${socket.id.substring(0,5)} :${message}`)
+        }
+    )
+    socket.on('disconnect', ()=>{
+        socket.broadcast.emit('message', `User ${socket.id.substring(0,5)} disconnected.`)
+    })
+
+    socket.on('activity', (name)=>{
+        socket.broadcast.emit('activity', name)
+    })
+
     }
 )
